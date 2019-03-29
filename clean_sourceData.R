@@ -1,5 +1,4 @@
 library(tidyverse)
-library(lubridate)
 
 # load in csv files
 clinton.raw <- read.csv('sourceData/clinton_raw.csv')
@@ -11,8 +10,6 @@ congress.raw <- read.csv('sourceData/congress_raw.csv')
 # these are to clean up the tweet text
 # remove links
 http_reg <- "http[s]?://[A-Za-z\\d/\\.]+|&amp;|&lt;|&gt;"
-# remove numbers
-num_reg <- "[0-9]"
 # remove punctuation (except # (for hashtags) and @ (for usernames))
 punct_reg <- "[^a-zA-Z@#\\s]"
 
@@ -20,7 +17,6 @@ punct_reg <- "[^a-zA-Z@#\\s]"
 clinton.clean <- clinton.raw %>%
   filter(!str_detect(text, "^RT")) %>%
   mutate(text = str_replace_all(text, http_reg, "")) %>%
-  mutate(text = str_replace_all(text, num_reg, " ")) %>%
   mutate(text = str_replace_all(text, punct_reg, "")) %>%
   mutate(timestamp = mdy_hm(created_at)) %>%
   mutate(doc_id = row_number()) %>%
@@ -29,7 +25,6 @@ clinton.clean <- clinton.raw %>%
 trump.clean <- trump.raw %>%
   filter(!str_detect(text, "^RT")) %>%
   mutate(text = str_replace_all(text, http_reg, "")) %>%
-  mutate(text = str_replace_all(text, num_reg, " ")) %>%
   mutate(text = str_replace_all(text, punct_reg, "")) %>%
   mutate(timestamp = mdy_hm(created_at)) %>%
   mutate(doc_id = row_number()) %>%
@@ -38,7 +33,6 @@ trump.clean <- trump.raw %>%
 congress.clean <- congress.raw %>%
   filter(!str_detect(text, "^RT")) %>%
   mutate(text = str_replace_all(text, http_reg, "")) %>%
-  mutate(text = str_replace_all(text, num_reg, " ")) %>%
   mutate(text = str_replace_all(text, punct_reg, "")) %>%
   mutate(media = -(media + 0.5), gender = gender + 0.5, race = race + 0.5) %>%
   mutate(doc_id = row_number()) %>%
