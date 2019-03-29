@@ -1,5 +1,4 @@
 library(tidyverse)
-library(lubridate)
 library(tokenizers)
 library(tm)
 library(sparsesvd)
@@ -45,5 +44,10 @@ trump.hashUser <- data.frame(as.matrix(trump.matrix[, grepl("@|#" , trump.matrix
 #congress.hashUser <- data.frame(as.matrix(congress.matrix[, grepl("@" , congress.matrix$dimnames$Terms )]),
 #                             check.names = FALSE)
 
-clinton.merged <- merge(clinton.clean, clinton.hashUser, by.x = "doc_id", by.y = "row.names")
-trump.merged <- merge(trump.clean, trump.hashUser, by.x = "doc_id", by.y = "row.names")
+clinton.merged <- merge(clinton.clean, clinton.hashUser, by.x = "doc_id", by.y = "row.names") %>%
+  dplyr::select(-one_of("doc_id", "X"))
+trump.merged <- merge(trump.clean, trump.hashUser, by.x = "doc_id", by.y = "row.names") %>%
+  dplyr::select(-one_of("doc_id", "X"))
+
+write.csv(clinton.merged, file = "corpusData/clinton_merged.csv", row.names=FALSE)
+write.csv(trump.merged, file = "corpusData/trump_merged.csv", row.names=FALSE)
