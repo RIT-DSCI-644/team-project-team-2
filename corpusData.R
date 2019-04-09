@@ -4,6 +4,7 @@ library(tm)
 library(sparsesvd)
 library(textmineR)
 library(quanteda)
+library(udpipe)
 
 clinton.clean <- read.csv('cleanData/clinton_clean.csv')
 trump.clean <- read.csv('cleanData/trump_clean.csv')
@@ -29,25 +30,28 @@ congress.corpus <- congress.clean %>%
   tm_map(content_transformer(tolower)) %>%
   tm_map(removeWords, stopwords('english'))
 
-# create the DTMs
+# create the DTMs and only keep terms that appear in at least 1% of tweets
 
-clinton.matrix <- DocumentTermMatrix(clinton.corpus)
-trump.matrix <- DocumentTermMatrix(trump.corpus)
-congress.matrix <- DocumentTermMatrix(congress.corpus)
+clinton.matrix <- DocumentTermMatrix(clinton.corpus) %>%
+  removeSparseTerms(0.99)
+trump.matrix <- DocumentTermMatrix(trump.corpus) %>%
+  removeSparseTerms(0.99)
+congress.matrix <- DocumentTermMatrix(congress.corpus) %>%
+  removeSparseTerms(0.99)
 
-# keep only hashtags and usernames
 
-clinton.hashUser <- data.frame(as.matrix(clinton.matrix[, grepl("@|#" , clinton.matrix$dimnames$Terms )]),
-                               check.names = FALSE)
-trump.hashUser <- data.frame(as.matrix(trump.matrix[, grepl("@|#" , trump.matrix$dimnames$Terms )]),
-                               check.names = FALSE)
-#congress.hashUser <- data.frame(as.matrix(congress.matrix[, grepl("@" , congress.matrix$dimnames$Terms )]),
-#                             check.names = FALSE)
+clinton.terms <- data.frame(as.matrix(clinton.matrix), check.names = FALSE)
+trump.terms <- data.frame(as.matrix(trump.matrix), check.names = FALSE)
+congress.terms <- data.frame(as.matrix(congress.matrix), check.names = FALSE)
 
-clinton.merged <- merge(clinton.clean, clinton.hashUser, by.x = "doc_id", by.y = "row.names") %>%
+
+clinton.merged <- merge(clinton.clean, clinton.terms, by.x = "doc_id", by.y = "row.names") %>%
   dplyr::select(-one_of("doc_id", "X"))
-trump.merged <- merge(trump.clean, trump.hashUser, by.x = "doc_id", by.y = "row.names") %>%
+trump.merged <- merge(trump.clean, trump.terms, by.x = "doc_id", by.y = "row.names") %>%
+  dplyr::select(-one_of("doc_id", "X"))
+congress.merged <- merge(congress.clean, congress.terms, by.x = "doc_id", by.y = "row.names") %>%
   dplyr::select(-one_of("doc_id", "X"))
 
 write.csv(clinton.merged, file = "corpusData/clinton_merged.csv", row.names=FALSE)
 write.csv(trump.merged, file = "corpusData/trump_merged.csv", row.names=FALSE)
+write.csv(congress.merged, file = "corpusData/congress_merged.csv", row.names=FALSE)
