@@ -53,3 +53,22 @@ Wtd.cleaned <- Wtd[!grepl("\\(.*\\)",Wtd)]
 trump.sig_rt <- lm(as.formula(paste("retweet_count ~",paste(Wtd.cleaned, collapse="+"))), data = trump.data)
 
 trump_rt.AIC <- stepAIC(trump.sig_rt, trace=FALSE)
+
+congress.data <- read.csv('corpusData/congress_merged.csv', check.names = FALSE)
+
+congress.full_lm_rt <- lm(retweet_count ~ . -text, data = congress.data)
+
+# limit to only variables with sngificance
+res <- coef(summary(congress.full_lm_rt))
+Wtd <- row.names(res[res[,"Pr(>|t|)"] < 0.05,]) 
+Wtd.cleaned <- Wtd[!grepl("\\(.*\\)",Wtd)] 
+
+congress.sig_rt <- lm(as.formula(paste("retweet_count ~",paste(Wtd.cleaned, collapse="+"))), data = congress.data)
+
+congress_rt.AIC <- stepAIC(congress.sig_rt, trace=FALSE)
+
+save(clinton_fav.AIC, file = "models/clinton_fav.rda")
+save(clinton_rt.AIC, file = "models/clinton_rt.rda")
+save(trump_fav.AIC, file = "models/trump_fav.rda")
+save(trump_rt.AIC, file = "models/trump_rt.rda")
+save(congress_rt.AIC, file = "models/congress_rt.rda")
