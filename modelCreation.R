@@ -6,18 +6,18 @@ clinton.data <- read.csv('corpusData/clinton_merged.csv', check.names = FALSE) %
   mutate(timestamp = as.Date(timestamp, format = "%Y-%m-%d")) %>%
   mutate(days_to_election = as.numeric(as.Date("2016-11-02", format = "%Y-%m-%d") - timestamp))
 
-clinton.full_lm_fav <- lm(favorite_count ~ . - (retweet_count + text + timestamp), data = clinton.data)
+clinton.full_lm_fav <- lm(favorite_count ~ . - (retweet_count + tweet_text + timestamp), data = clinton.data)
 
-# limit to only variables with sngificance
+# limit to only variables with significance
 res <- coef(summary(clinton.full_lm_fav))
 Wtd <- row.names(res[res[,"Pr(>|t|)"] < 0.1,]) 
 Wtd.cleaned <- Wtd[!grepl("\\(.*\\)",Wtd)] 
 
-clinton.sig_fav <- lm(as.formula(paste("favorite_count ~",paste(Wtd.cleaned, collapse="+"))), data = clinton.data)
+clinton.sig_fav <- lm(as.formula(paste("favorite_count ~",paste(Wtd.cleaned, collapse=" + "))), data = clinton.data)
 
 clinton_fav.AIC <- stepAIC(clinton.sig_fav, trace=FALSE)
 
-clinton.full_lm_rt <- lm(retweet_count ~ . - (favorite_count + text + timestamp), data = clinton.data)
+clinton.full_lm_rt <- lm(retweet_count ~ . - (favorite_count + tweet_text + timestamp), data = clinton.data)
 
 # limit to only variables with sngificance
 res <- coef(summary(clinton.full_lm_rt))
@@ -32,7 +32,7 @@ trump.data <- read.csv('corpusData/trump_merged.csv', check.names = FALSE) %>%
   mutate(timestamp = as.Date(timestamp, format = "%Y-%m-%d")) %>%
   mutate(days_to_election = as.numeric(as.Date("2016-11-02", format = "%Y-%m-%d") - timestamp))
 
-trump.full_lm_fav <- lm(favorite_count ~ . - (retweet_count + text + timestamp), data = trump.data)
+trump.full_lm_fav <- lm(favorite_count ~ . - (retweet_count + tweet_text + timestamp), data = trump.data)
 
 # limit to only variables with sngificance
 res <- coef(summary(trump.full_lm_fav))
@@ -43,7 +43,7 @@ trump.sig_fav <- lm(as.formula(paste("favorite_count ~",paste(Wtd.cleaned, colla
 
 trump_fav.AIC <- stepAIC(trump.sig_fav, trace=FALSE)
 
-trump.full_lm_rt <- lm(retweet_count ~ . - (favorite_count + text + timestamp), data = trump.data)
+trump.full_lm_rt <- lm(retweet_count ~ . - (favorite_count + tweet_text + timestamp), data = trump.data)
 
 # limit to only variables with sngificance
 res <- coef(summary(trump.full_lm_rt))
@@ -56,7 +56,7 @@ trump_rt.AIC <- stepAIC(trump.sig_rt, trace=FALSE)
 
 congress.data <- read.csv('corpusData/congress_merged.csv', check.names = FALSE)
 
-congress.full_lm_rt <- lm(retweet_count ~ . -text, data = congress.data)
+congress.full_lm_rt <- lm(retweet_count ~ . -tweet_text, data = congress.data)
 
 # limit to only variables with sngificance
 res <- coef(summary(congress.full_lm_rt))
