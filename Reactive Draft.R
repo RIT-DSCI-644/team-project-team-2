@@ -17,7 +17,7 @@ header <- dashboardHeader(title = "Tweet Predictor")
 #Sidebar content of the dashboard
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    menuItem("Team 2", tabName = "Team 2", icon = icon("dashboard"))
+    menuItem("Team 2", tabName = "Team 2 644", icon = icon("dashboard"))
   )
 )
 
